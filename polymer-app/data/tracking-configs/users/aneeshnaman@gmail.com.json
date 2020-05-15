@@ -1,0 +1,13 @@
+[{
+  "project": "anantak-ghumio-dev",
+  "name": "Anantak Ghumio Dev",
+  "bucket": "anantak-ghumio-dev"
+}, {
+  "project": "anantak-dane",
+  "name": "Anantak Dane",
+  "bucket": "anantak-dane"
+}, {
+  "project": "anantak-kuehne-nagel",
+  "name": "Anantak Kuehne-Nagel",
+  "bucket": "anantak-kuehne-nagel"
+}]

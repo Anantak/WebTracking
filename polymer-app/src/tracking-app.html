@@ -1,0 +1,346 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/google-apis/google-js-api.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+
+<!-- Required for signing in even though we haven't added a google-signin element -->
+<!-- anywhere on this page :| -->
+<link rel="import" href="../bower_components/google-signin/google-signin.html">
+<!-- For some weird chrome/polymer import bug that causes 'behavior is null' errors -->
+<!-- This needs to imported in this main file instead of the file where this is used. -->
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+
+<link rel="import" href="my-icons.html">
+
+<!-- map and routes depend on location-data so initialize eagerly, not lazily to avoid -->
+<!-- having to initialize them separately when user switches to those tabs. -->
+<link rel="import" href="location-data.html">
+
+<!-- <link rel="import" href="app-settings.html">
+<link rel="import" href="map-view.html">
+<link rel="import" href="machine-routes.html">
+<link rel="import" href="machine-learn.html">
+<link rel="import" href="machine-admin.html">
+<link rel="import" href="machine-handheld.html">
+
+<link rel="lazy-import" href="machine-history.html">
+<link rel="lazy-import" href="machine-camera.html">
+<link rel="lazy-import" href="machine-calibrate.html"> -->
+<link rel="import" href="my-view1.html">
+<link rel="lazy-import" href="my-view404.html">
+
+<dom-module id="tracking-app">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment shared-styles">
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+        --app-drawer-width: 150px;
+
+        display: block;
+      }
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+
+      app-header {
+        color: #fff;
+        background-color: #333;
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      #menu-icon {
+        color: white;
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+      }
+
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+        line-height: 40px;
+      }
+
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
+
+      #project-selection-dialog paper-button {
+        text-transform: none;
+      }
+
+      .anantak-logo {
+        margin-right: 1em;
+      }
+
+      @media (min-width: 300px) and (max-width: 500px) {
+        app-toolbar {
+          padding: 0 0px;
+        }
+
+        .connection {
+          margin-right: 2px;
+          font-size: 15px;
+          width: 50%;
+        }
+
+        .support {
+          margin-right: 2px;
+          font-size: 15px;
+          width: 25%;
+        }
+      }
+
+      @media (min-width: 500px) and (max-width: 8000px) {
+        .card {
+          margin: 12px;
+        }
+
+        .support {
+          margin-right: 2px;
+        }
+      }
+
+    </style>
+
+    <app-location
+        route="{{route}}"
+        url-space-regex="^[[rootPath]]">
+    </app-location>
+
+    <app-route
+        route="{{route}}"
+        pattern="[[rootPath]]:page"
+        data="{{routeData}}"
+        tail="{{subroute}}">
+    </app-route>
+
+    <app-drawer-layout fullbleed force-narrow narrow="{{narrow}}">
+      <!-- Drawer content -->
+      <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+        <app-toolbar>Tracking</app-toolbar>
+        <iron-selector
+            selected="[[page]]"
+            attr-for-selected="name"
+            class="drawer-list"
+            role="navigation">
+          <a name="view1" href="[[rootPath]]view1">Dashboard</a>
+          <!-- <a name="machine-routes" href="[[rootPath]]machine-routes">Routes</a>
+          <a name="app-settings" href="[[rootPath]]app-settings">Machine</a>
+          <a name="map-view" href="[[rootPath]]map-view">Map</a>
+          <a name="machine-history" href="[[rootPath]]machine-history">History</a>
+          <a name="machine-camera" href="[[rootPath]]machine-camera">Camera</a>
+          <a name="machine-learn" href="[[rootPath]]machine-learn">Learn</a>
+          <a name="machine-admin" href="[[rootPath]]machine-admin">Admin</a>
+          <a name="machine-calibrate" href="[[rootPath]]machine-calibrate">Calibrate</a>
+          <a name="machine-handheld" href="[[rootPath]]machine-handheld">Handheld</a> -->
+        </iron-selector>
+      </app-drawer>
+
+      <!-- Main content -->
+      <google-js-api
+        id="gapi"
+        on-js-api-load="_gapiLoaded">
+      </google-js-api>
+
+      <google-signin-aware
+          id="signin-aware"
+          on-google-signin-aware-success="_handleSignIn"
+          on-google-signin-offline-success="_handleSignIn"
+          client-id="329567572907-temfoohsqmaljmqdnu929so5lktuv9b4.apps.googleusercontent.com"
+          scopes="https://www.googleapis.com/auth/devstorage.read_only">
+      </google-signin-aware>
+
+      <!-- client-id="329567572907-temfoohsqmaljmqdnu929so5lktuv9b4.apps.googleusercontent.com" -->
+      <!-- client-id="190241720333-0gfa9pgtb1nahnnp4uktfa6e10ub526r.apps.googleusercontent.com" -->
+
+      <google-signin
+          style="display:none"
+          id="signin"
+          client-id="329567572907-temfoohsqmaljmqdnu929so5lktuv9b4.apps.googleusercontent.com"
+          scopes="https://www.googleapis.com/auth/devstorage.read_only">
+      </google-signin>
+
+      <app-header-layout has-scrolling-region>
+
+        <app-header slot="header" condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button id="menu-icon" icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>
+              <div class="horizontal layout center">
+                <img class="anantak-logo" src="images/manifest/icon-48x48.png"></img>
+                <div class="connection flex">
+                  <template is="dom-if" if="[[connectedToDatabase]]">
+                    [[_anantakBucket]]
+                  </template>
+                  <template is="dom-if" if="[[!connectedToDatabase]]">
+                    Not Connected
+                  </template>
+                  <!-- <template is="dom-if" if="[[connectedToMachine]]">
+                          Connected: [[machineName]]
+                  </template>
+                  <template is="dom-if" if="[[!connectedToMachine]]">
+                    <template is="dom-if" if="[[connectedToDatabase]]">
+                            Cloud: [[machineName]]
+                    </template>
+                  </template>
+                  <template is="dom-if" if="[[!connectedToMachine]]">
+                    <template is="dom-if" if="[[!connectedToDatabase]]">
+                          Not connected
+                    </template>
+                  </template> -->
+                </div>
+                <div class="support">
+                  Help: 650-898-7481
+                </div>
+              </div>
+            </div>
+          </app-toolbar>
+        </app-header>
+
+        <iron-pages
+            selected="[[page]]"
+            attr-for-selected="name"
+            fallback-selection="view1"
+            role="main">
+          <my-view1
+            name="view1"
+            id="view1"
+            deployment-id="{{deploymentId}}"
+            deployment-location-id="{{deploymentLocationId}}"
+            machines-list="{{machinesList}}">
+          </my-view1>
+          <!-- <app-settings
+              id="appSettings"
+              name="app-settings"
+              control-addr="{{controlAddr}}"
+              video-addr="{{videoAddr}}"
+              deployment-id="{{deploymentId}}"
+              deployment-location-id="{{deploymentLocationId}}"
+              deployments-data="[[deploymentsData]]"
+              db-super-users="{{dbSuperUsers}}"
+              site-settings="{{siteSettings}}"
+              machine-name="{{machineName}}"
+              machine-id="{{machineId}}">
+          </app-settings>
+          <machine-routes
+              name="machine-routes"
+              id="routes"
+              deployment-location-id="{{deploymentLocationId}}"
+              loc-data="{{locData}}"
+              user-can-send-commands="{{userCanSendCommands}}"
+              db-super-users="{{dbSuperUsers}}"
+              site-settings="{{siteSettings}}">
+          </machine-routes>
+          <machine-handheld
+              name="machine-handheld"
+              id="handheld"
+              deployment-location-id="{{deploymentLocationId}}"
+              loc-data="{{locData}}"
+              machine-name="{{machineName}}"
+              connected-to-machine="{{connectedToMachine}}"
+              connected-to-database="{{connectedToDatabase}}"
+              user-can-send-commands="{{userCanSendCommands}}"
+              db-super-users="{{dbSuperUsers}}"
+              site-settings="{{siteSettings}}">
+          </machine-handheld>
+          <map-view
+              name="map-view"
+              id="mapView"
+              deployment-location-id="{{deploymentLocationId}}"
+              loc-data="{{locData}}"
+              project-id="{{projectId}}"
+              machine-id="{{machineId}}">
+          </map-view>
+          <machine-camera
+              id="machineCamera"
+              name="machine-camera"
+              ip-address="{{ipAddress}}"
+              user-email-address="{{userEmailAddress}}"
+              user-can-send-commands="{{userCanSendCommands}}"
+              firestore-database={{firestoreDatabase}}
+              loc-data="{{locData}}"
+              project-id="{{projectId}}"
+              machine-id="{{machineId}}"
+              video-addr="{{videoAddr}}">
+          </machine-camera>
+          <machine-history
+            id="machineHistory"
+            name="machine-history"
+            loc-data="{{locData}}"
+            machine-id="{{machineId}}">
+          </machine-history>
+          <machine-learn
+            id="machineLearn"
+            name="machine-learn"
+            loc-data="{{locData}}"
+            machine-id="{{machineId}}">
+          </machine-learn>
+          <machine-calibrate name="machine-calibrate"></machine-calibrate>
+          <machine-admin
+            id="machineAdmin"
+            name="machine-admin"
+            firestore-database={{firestoreDatabase}}
+            machine-id="{{machineId}}"
+            ip-address="{{ipAddress}}"
+            user-email-address="{{userEmailAddress}}"
+            user-can-send-commands={{userCanSendCommands}}>
+          </machine-admin> -->
+          <my-view404 name="view404"></my-view404>
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
+
+    <location-data
+      name="location-data"
+      id="locationData"
+      deployment-id="[[deploymentId]]"
+      deployment-location-id="[[deploymentLocationId]]"
+      anantak-bucket="[[_anantakBucket]]"
+      loc-data="{{locData}}"
+      on-data-updated="_deploymentDataUpdated">
+    </location-data>
+
+    <paper-dialog id="project-selection-dialog" modal>
+      <h1>Select a project</h1>
+      <hr/>
+      <div class="vertical layout center">
+        <template is="dom-repeat" items="{{_userConfigsList}}">
+          <paper-button bucket$="[[item.bucket]]" on-click="_onProjectSelection">
+            [[item.name]]
+          </paper-button>
+        </template>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-firestore.js"></script>
+  <!-- <script src="websock.js"></script> -->
+  <script src="util.js"></script>
+  <script src="tracking-app.js"></script>
+</dom-module>

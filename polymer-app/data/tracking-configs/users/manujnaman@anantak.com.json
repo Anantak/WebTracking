@@ -1,0 +1,23 @@
+[
+{
+  "project": "anantak-testing-site",
+  "name": "Anantak Testing Site",
+  "bucket": "anantak-testing-site"
+},
+{
+  "project": "anantak-kuehne-nagel",
+  "name": "Anantak Kuehne-Nagel",
+  "bucket": "anantak-kuehne-nagel"
+},
+{
+  "project": "anantak-fernlea",
+  "name": "Anantak IKEA",
+  "bucket": "anantak-fernlea"
+},
+{
+  "project": "anantak-fritolay",
+  "name": "Anantak Fritolay",
+  "bucket": "anantak-fritolay"
+}
+
+]

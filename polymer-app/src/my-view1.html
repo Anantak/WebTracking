@@ -1,0 +1,526 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-view1">
+  <template>
+
+    <style is="custom-style" include="iron-flex iron-flex-alignment shared-styles">
+
+          .card-heading {
+            margin-right: 12px;
+          }
+
+          paper-radio-button.iron-selected paper-button {
+            background-color: var(--paper-indigo-50);
+          }
+
+          paper-radio-button paper-button {
+            text-transform: none;
+          }
+
+          paper-radio-button {
+            padding-left: 0;
+          }
+
+          paper-radio-button[disabled] {
+            --paper-radio-button-checked-color: black;
+            --paper-radio-button-unchecked-color: black;
+            --paper-radio-button-label-color: black;
+          }
+
+          h3 {
+            margin-bottom: 0;
+          }
+
+
+          paper-button {
+            margin: 4px 4px;
+            padding: 8px;
+            color: #333;
+            border: 1px solid var(--google-grey-500);
+          }
+
+          paper-button[is-current] {
+            font-weight: bold;
+          }
+
+          paper-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button[is-selected] {
+            background-color: var(--paper-indigo-200);
+            color: white;
+            border: 1px solid var(--paper-indigo-300);
+          }
+
+          paper-button[is-current-at-stop],
+          paper-button[is-last-marker] {
+            background-color: var(--paper-red-300);
+            color: white;
+            border: 1px solid var(--paper-red-500);
+          }
+
+          paper-button[is-next-stop],
+          paper-button[is-next-marker] {
+            background-color: var(--paper-green-300);
+            color: white;
+            border: 1px solid var(--paper-green-500);
+          }
+
+          paper-button.green-button {
+            background-color: green;
+            color: white;
+          }
+          paper-button.green-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.light-yellow-button {
+            background-color: LightYellow;
+            --paper-button-ink-color: Green;
+          }
+          paper-button.light-yellow-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+          paper-button.light-yellow-button[active] {
+            background-color: Green;
+            --paper-button-ink-color: LightYellow;
+          }
+
+          paper-button.lightgreen-button {
+            background-color: lightgreen;
+          }
+          paper-button.lightgreen-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.limegreen-button {
+            background-color: palegreen;
+          }
+          paper-button.limegreen-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.greenyellow-button {
+            background-color: greenyellow;
+          }
+          paper-button.greenyellow-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+          paper-button.greenyellow-button[is-current] {
+            background-color: green;
+            font-weight: bold;
+            color: white;
+          }
+
+          paper-button.red-button {
+            background-color: red;
+            color: white;
+          }
+          paper-button.red-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.blue-button {
+            background-color: deepskyblue;
+            color: black;
+          }
+          paper-button.blue-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.purple-button {
+            background-color: lavender;
+            color: black;
+          }
+          paper-button.purple-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.lightgray-button {
+            background-color: lightgray;
+            color: black;
+          }
+          paper-button.lightgray-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          paper-button.gold-button {
+            background-color: gold;
+            color: black;
+          }
+          paper-button.gold-button[disabled] {
+            background-color: var(--google-grey-100);
+            color: var(--light-theme-disabled-color);
+            border: 1px solid var(--google-grey-300);
+          }
+
+          #markers paper-button {
+            text-transform: none;
+            margin-right: 1em;
+          }
+
+          #routes paper-button {
+            text-transform: none;
+          }
+
+          #stops paper-button {
+            text-transform: none;
+          }
+
+          #stops paper-button[is-in-stops-list] {
+            text-transform: uppercase;
+            color: green;
+            font-weight: bold;
+            border: 1px solid green;
+          }
+
+          .route-name-button {
+            margin-right: 0;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+          }
+          .route-all-button {
+            margin-left: 5px;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+          }
+          .route-all-button-container {
+          }
+
+          .gauge-container {
+            margin-left: 0.5em;
+            margin-right: 0.5em;
+          }
+
+          paper-checkbox, numeric-gauge {
+            margin-bottom: 10px;
+          }
+
+          .machine-message {
+            margin: 1px 8px 1px 8px;
+            text-align: center;
+          }
+
+          .all-good {
+            color: black;
+            background-color: white;
+          }
+
+          .careful {
+            color: black;
+            background-color: yellow;
+          }
+
+          .warning {
+            color: black;
+            background-color: gold;
+          }
+
+          .error {
+            color: black;
+            background-color: coral;
+          }
+
+          .message-info {
+            font-size: 13px;
+          }
+
+          #battery-info {
+            font-size: 13px;
+          }
+
+          #cart-selection paper-radio-button.iron-selected paper-button {
+            background-color: Green;
+            color: White;
+          }
+
+          .cart-label {
+            padding-right: 25px;
+          }
+
+          #movement-selection-holder {
+            display: block;
+            height: 560px;
+          }
+
+          #messages {
+            height: 80px;
+          }
+
+          #route-selection {
+            height: 60px;
+          }
+
+          #go-stop {
+            height: 110px;
+          }
+
+          #distance-move {
+            height: 110px;
+          }
+
+          #auto-manual {
+            height: 145px;
+          }
+
+          #fullscreen {
+            height: 50px;
+          }
+
+          #push-move {
+            height: 90px;
+          }
+
+          #button-set-fullscreen {
+            display: block;
+          }
+
+          #button-exit-fullscreen {
+            display: none;
+          }
+
+          #connection-machine-msg {
+            display: none;
+          }
+
+          #help-msg {
+            display: none;
+          }
+
+          :-webkit-full-screen #connection-machine-msg {
+            display: block;
+            margin: 12px 8px 1px 8px
+          }
+
+          :-webkit-full-screen #help-msg {
+            display: block;
+          }
+
+          :-webkit-full-screen #movement-selection-holder {
+            width: 100vw;
+            height: 100vh;
+          }
+
+          :-webkit-full-screen #messages {
+            height: 180px;
+          }
+
+          :-webkit-full-screen #button-set-fullscreen {
+            display: none;
+          }
+
+          :-webkit-full-screen #button-exit-fullscreen {
+            display: block;
+          }
+
+          :-webkit-full-screen #button-soft-restart {
+            display: none;
+          }
+
+          .button-font {
+            font-size: 20px;
+          }
+
+          .full-screen-icon {
+            margin: 0px 0px 0px 10px;
+          }
+
+          .rotate-landscape {
+            transform: rotate(-90deg);
+          }
+
+          .rotate-none {
+            transform: rotate(0deg);
+          }
+
+          .rotate-right {
+            transform: rotate(-90deg);
+          }
+
+          .rotate-left {
+            transform: rotate(90deg);
+          }
+
+          #button-set-fullscreen {
+            min-width: 40px;
+          }
+
+          #button-rotate-to-left {
+            min-width: 40px;
+            max-width: 70px;
+          }
+
+          #button-voice {
+            min-width: 40px;
+            max-width: 70px;
+          }
+
+          #button-beacon {
+            min-width: 40px;
+            max-width: 70px;
+          }
+
+          .delay-error-text {
+            color: red;
+            background-color: white;
+          }
+
+          .delay-warning-text {
+            color: DarkOrange;
+            background-color: white;
+          }
+
+          .table-header-text {
+            color: Black;
+            background-color: white;
+          }
+
+        </style>
+
+    <div class="card">
+
+      <div class="layout vertical">
+        <div class="layout horizontal">
+          <div class="table-header-text flex">Machine</div>
+          <div class="table-header-text flex">Location</div>
+          <div class="table-header-text flex">Voltage</div>
+          <div class="table-header-text flex">Lights</div>
+          <div class="table-header-text flex">Speed</div>
+          <div class="table-header-text flex">Delay</div>
+        </div>
+        <template is="dom-repeat" id="machines" items="[[machinesGrid]]">
+        <div class="layout horizontal">
+          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.machineId]]</div>
+          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.machineLocn]]</div>
+          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.battery_voltage]]</div>
+          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.lights]]</div>
+          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.speed]]</div>
+          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.delay]]</div>
+        </div>
+        </template>
+      </div>
+
+    </div>
+  </template>
+
+  <script>
+    class MyView1 extends Polymer.Element {
+
+      static get is() { return 'my-view1'; }
+
+      static get properties() {
+        return {
+          deploymentId: {type: String, notify: true},
+          deploymentLocationId: {type: String, notify: true},
+          machineControlCollections: {type: Object, value: {}},
+          machinesList: {type: Array, value: [], notify: true},
+
+          machinesGrid: {type: Array, value: []}
+        }
+      }
+
+      ready()
+      {
+        super.ready();
+      }
+
+      _onMachinesListChange()
+      {
+        console.log('Dashboard: _onMachinesListChange ', this.machinesList);
+        // this.shadowRoot.querySelector( '#machinesGrid' ).items = this.machinesList; //tempMachinesList;
+      }
+
+      assignMachinesList(list)
+      {
+        console.log('Dashboard: assignMachinesList ', list);
+        this.machinesList = list;
+        this.machinesGrid = list;
+      }
+
+      assignMachineData(machine_id, data)
+      {
+        // go through machines list, looking for the id of the machine. Assign data if found
+        var i_machine;
+        for (i_machine=0; i_machine < this.machinesList.length; i_machine++)
+        {
+          if (this.machinesList[i_machine].machineId == machine_id)
+          {
+            // console.log('Dashboard: Found machine at index', i_machine);
+
+            // Set display grid values from data
+            this.set(['machinesGrid', i_machine, 'battery_voltage'], data.status.battery_voltage.toFixed(3));
+            this.set(['machinesGrid', i_machine, 'lights'], data.status.lights.color+' '+data.status.lights.shape);
+            this.set(['machinesGrid', i_machine, 'speed'], data.status.speed.toFixed(3));
+            this.set(['machinesGrid', i_machine, 'delay'], this.getDelayHrs(data.timestamp));
+
+            // Done for this message
+            break;
+          }
+        }
+
+        console.log("MyView1:", this.machinesGrid);
+
+      } // assign machine data
+
+      getDelayHrs(tsMs)
+      {
+        var currTsMs = Date.now();
+        var delay_sec = (currTsMs - tsMs)/1000;
+        var delay_hrs = delay_sec / 3600;
+        return delay_hrs.toFixed(2);
+      }
+
+      _getDisplayClassForDelay(delayHrs)
+      {
+        if (delayHrs > 10.0)
+        {
+          return 'delay-error-text flex';
+        }
+        else if (delayHrs > 0)
+        {
+          return 'delay-warning-text flex'
+        }
+        return 'flex';
+      }
+
+    } // class
+
+    window.customElements.define(MyView1.is, MyView1);
+  </script>
+</dom-module>
