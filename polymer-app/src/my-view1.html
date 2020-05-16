@@ -13,7 +13,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../bower_components/iron-icons/image-icons.html">
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="my-icons.html">
 
 <dom-module id="my-view1">
   <template>
@@ -421,6 +425,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="table-header-text flex">Location</div>
           <div class="table-header-text flex">Voltage</div>
           <div class="table-header-text flex">Lights</div>
+          <div class="table-header-text flex">Icon</div>
           <div class="table-header-text flex">Speed</div>
           <div class="table-header-text flex">Delay</div>
         </div>
@@ -430,6 +435,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.machineLocn]]</div>
           <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.battery_voltage]]</div>
           <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.lights]]</div>
+          <div class="flex" style="[[_getStyleForColor(item.light_color)]]">
+            <iron-icon icon$="[[_getIconNameForShape(item.shape)]]" role="img"></iron-icon>
+          </div>
           <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.speed]]</div>
           <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.delay]]</div>
         </div>
@@ -486,6 +494,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Set display grid values from data
             this.set(['machinesGrid', i_machine, 'battery_voltage'], data.status.battery_voltage.toFixed(3));
             this.set(['machinesGrid', i_machine, 'lights'], data.status.lights.color+' '+data.status.lights.shape);
+            this.set(['machinesGrid', i_machine, 'light_color'], data.status.lights.color);
+            this.set(['machinesGrid', i_machine, 'shape'], data.status.lights.shape);
             this.set(['machinesGrid', i_machine, 'speed'], data.status.speed.toFixed(3));
             this.set(['machinesGrid', i_machine, 'delay'], this.getDelayHrs(data.timestamp));
 
@@ -517,6 +527,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return 'delay-warning-text flex'
         }
         return 'flex';
+      }
+
+      _getIconNameForShape(shape)
+      {
+        if (shape == 'square')
+        {
+          return 'my-icons:square';
+        }
+        else if (shape == 'circle')
+        {
+          return 'my-icons:circle';
+        }
+        else if (shape == 'spokes')
+        {
+          return 'maps:navigation';
+        }
+        return 'my-icons:square';
+      }
+
+      _getStyleForColor(light_color)
+      {
+        return 'color: '+light_color+';';
       }
 
     } // class
