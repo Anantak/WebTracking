@@ -92,7 +92,9 @@ class TrackingApp extends Polymer.Element {
       userBucketsList: {type: Array, value: []},
       deploymentsDataList: {type: Array, value: []},
       controlQueryUnsubscribeList: {type: Array, value: []},
+      repliesQueryUnsubscribeList: {type: Array, value: []},
       machineControlCollections: {type: Object, value: {}, observer: '_machineControlCollectionsChanged'},
+      machineRepliesCollections: {type: Object, value: {}, observer: '_machineRepliesCollectionsChanged'},
       machinesList: {type: Array, value: [], observer: '_machinesListChanged'}
     };
   }
@@ -131,6 +133,10 @@ class TrackingApp extends Polymer.Element {
 
   _machineControlCollectionsChanged() {
     console.log('TrackingApp: _machineControlCollectionsChanged', this.machineControlCollections);
+  }
+
+  _machineRepliesCollectionsChanged() {
+    console.log('TrackingApp: _machineRepliesCollectionsChanged', this.machineRepliesCollections);
   }
 
   _checkIfUserCanSendCommands() {
@@ -371,20 +377,24 @@ class TrackingApp extends Polymer.Element {
         var machineId = machine.id;
         var machineName = machine.name;
         var machineLocn = machine.location;
+        var machineCity = machine.city;
         console.log('     Machine', machine_counter, ':', machineId, ',', machineLocn);
 
         // Create subscription to database for this machine
         var dbMachineControlCollection = machineId+"-control";
         var dbMachineCommandsCollection = machineId+"-commands";
+        var dbMachineRepliesCollection = machineId+"-replies";
 
         var machineData = {
           'machineId': machineId,
           'machineName': machineName,
           'machineLocn': machineLocn,
+          'machineCity': machineCity,
           'deploymentId': deploymentId
         };
 
         this.machineControlCollections[dbMachineControlCollection] = machineData;
+        this.machineRepliesCollections[dbMachineRepliesCollection] = machineData;
 
         this.machinesList.push(machineData);
 
@@ -412,6 +422,32 @@ class TrackingApp extends Polymer.Element {
 
         this.controlQueryUnsubscribeList.push(controlQueryUnsubscribe);
 
+
+        // Subscribe to Replies data
+        console.log('       Subscribing to database for: ', dbMachineRepliesCollection);
+        var repliesQueryUnsubscribe =
+          this.firestoreDatabase.collection(dbMachineRepliesCollection).orderBy("timestamp", "desc").limit(1).onSnapshot(
+            (querySnapshot) =>
+          {
+            querySnapshot.forEach(
+              (doc) =>
+            {
+              if (doc.exists)
+              {
+                // console.log("TrackingApp: Database message: ", doc.ref.parent.id, doc.data());
+                this.handleMachineRepliesDatabaseMessage(doc.ref.parent.id, doc.data());
+              }
+              else
+              {
+                console.log("TrackingApp: Hist data: No document");
+              }
+            }, this);
+          }
+        );
+
+        this.repliesQueryUnsubscribeList.push(repliesQueryUnsubscribe);
+
+        // Increment machines counter
         machine_counter++;
 
       } // for each machine
@@ -425,19 +461,38 @@ class TrackingApp extends Polymer.Element {
 
     // Assign list of machines
     this.$.view1.assignMachinesList(this.machinesList);
+
+    // Get IPAddress
+    if (this.ipAddress == '') {
+      this.getIpAddress();
+    }
+
   }
 
   handleMachineControlDatabaseMessage(control_collection_id, doc_data)
   {
-    console.log('TrackingApp: control message from ', control_collection_id, doc_data);
+    // console.log('TrackingApp: control message from ', control_collection_id, doc_data);
 
     if (!this.machineControlCollections[control_collection_id]) return;
 
     var machine_id = this.machineControlCollections[control_collection_id].machineId;
 
-    console.log('  machine: ', machine_id);
+    // console.log('  machine: ', machine_id);
 
     this.$.view1.assignMachineData(machine_id, doc_data);
+  }
+
+  handleMachineRepliesDatabaseMessage(replies_collection_id, doc_data)
+  {
+    console.log('TrackingApp: replies message from ', replies_collection_id, doc_data);
+
+    if (!this.machineRepliesCollections[replies_collection_id]) return;
+
+    var machine_id = this.machineRepliesCollections[replies_collection_id].machineId;
+
+    // console.log('  machine: ', machine_id);
+
+    this.$.view1.assignRepliesData(machine_id, doc_data);
   }
 
   _createDbConnectionForMultipleMachines()
@@ -743,13 +798,14 @@ class TrackingApp extends Polymer.Element {
   }
 
   getIpAddress() {
-    fetch('https://api.ipify.org?format=json')
-    .then(res => res.json())
-    .then((out) => {
-      this.ipAddress = out.ip;
-      console.log('TrackingApp: IP json from ipify: ', out);
-    })
-    .catch(err => { throw err });
+    this.ipAddress = '192.168.0.0';  // Getting away from ipaddress problems - Manuj Naman Aug 20, 2020
+    // fetch('https://api.ipify.org?format=json')
+    // .then(res => res.json())
+    // .then((out) => {
+    //   this.ipAddress = out.ip;
+    //   console.log('TrackingApp: IP json from ipify: ', out);
+    // })
+    // .catch(err => { throw err });
   }
 
   getUserEmailAddress() {

@@ -32,7 +32,8 @@
     "iron-image": "PolymerElements/iron-image#^2.2.1",
     "paper-date-picker": "polymer-paper-date-picker#^2.0.0",
     "datetime-picker": "fooloomanzoo/datetime-picker#^2.9.1",
-    "vaadin-combo-box": "vaadin/vaadin-combo-box#^4.1.0"
+    "vaadin-combo-box": "vaadin/vaadin-combo-box#^4.1.0",
+    "iron-collapse": "PolymerElements/iron-collapse#^3.0.1"
   },
   "resolutions": {
     "polymer": "^2.0.0"

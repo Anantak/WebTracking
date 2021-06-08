@@ -16,8 +16,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="my-icons.html">
+
 
 <dom-module id="my-view1">
   <template>
@@ -101,6 +103,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           paper-button.light-yellow-button {
             background-color: LightYellow;
             --paper-button-ink-color: Green;
+            height: 20px;
           }
           paper-button.light-yellow-button[disabled] {
             background-color: var(--google-grey-100);
@@ -147,6 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           paper-button.red-button {
             background-color: red;
             color: white;
+            height: 20px;
           }
           paper-button.red-button[disabled] {
             background-color: var(--google-grey-100);
@@ -239,6 +243,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           .machine-message {
             margin: 1px 8px 1px 8px;
             text-align: center;
+          }
+
+          .row-separator {
+            padding-top: 3px;
+            border-top: 1px solid lightgray;
+          }
+
+          .end-row-separator {
+            border-bottom: 1px solid lightgray;
           }
 
           .all-good {
@@ -410,41 +423,165 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             background-color: white;
           }
 
-          .table-header-text {
-            color: Black;
-            background-color: white;
+          .voltage-error-text {
+            color: white;
+            background-color: red;
           }
 
-        </style>
+          .voltage-warning-text {
+            background-color: MistyRose;
+          }
+
+          .table-header-text {
+            color: Black;
+            background-color: Gainsboro;
+          }
+
+          .default-icon-class {
+            color: LightGray;
+          }
+
+          .row-with-bottom-border {
+            border-bottom: 1px solid red;
+          }
+
+          .small-icon-button {
+             --paper-icon-button: {
+               width: 25px;
+               height: 25px;
+             }
+           }
+
+           .collapsed-container {
+             margin-left: 10px;
+             margin-right: 10px;
+             background-color: whitesmoke;
+           }
+
+           .replies-sent {
+             color: LightGray;
+           }
+
+           .replies-got {
+             color: Black;
+           }
+
+           .flexchild {
+             @apply(--layout-flex);
+           }
+           .flex2child {
+             @apply(--layout-flex-2);
+           }
+           .flex3child {
+             @apply(--layout-flex-3);
+           }
+
+           @media screen and (max-width: 700px) {
+               .hidingcity {
+                   display: none !important;
+               }
+           }
+
+           div {
+             white-space: nowrap;
+             overflow: hidden;
+           }
+
+    </style>
 
     <div class="card">
 
       <div class="layout vertical">
         <div class="layout horizontal">
+          <div class="hidingcity table-header-text flex">City</div>
           <div class="table-header-text flex">Machine</div>
-          <div class="table-header-text flex">Location</div>
-          <div class="table-header-text flex">Voltage</div>
-          <div class="table-header-text flex">Lights</div>
-          <div class="table-header-text flex">Icon</div>
-          <div class="table-header-text flex">Speed</div>
-          <div class="table-header-text flex">Delay</div>
-        </div>
-        <template is="dom-repeat" id="machines" items="[[machinesGrid]]">
-        <div class="layout horizontal">
-          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.machineId]]</div>
-          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.machineLocn]]</div>
-          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.battery_voltage]]</div>
-          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.lights]]</div>
-          <div class="flex" style="[[_getStyleForColor(item.light_color)]]">
-            <iron-icon icon$="[[_getIconNameForShape(item.shape)]]" role="img"></iron-icon>
+          <div class="table-header-text">
+            <paper-icon-button icon="[[_icon(item.opened)]]" class="small-icon-button"></paper-icon-button>
           </div>
-          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.speed]]</div>
-          <div class$="[[_getDisplayClassForDelay(item.delay)]]">[[item.delay]]</div>
+          <div class="table-header-text flex">Lights State</div>
+          <div class="table-header-text flex">Speed (Tgt)</div>
+          <div class="table-header-text flex">Locn (Rcg)</div>
+          <div class="table-header-text flex">Dist/Rte/Aut</div>
+          <div class="table-header-text flex">Batt Delay CPU</div>
+        </div>
+        <template is="dom-repeat" id="machines" items="{{machinesGrid}}" sort="{{computeGridSort()}}">
+        <div class="layout vertical" id$="machinerow-[[index]]">
+          <div class="layout horizontal" id$="mainrow-[[index]]">
+            <div class$="hidingcity {{_getDisplayClassForDelayFlexRatio(item.delay,'')}}">
+              <span id$="machinecity-[[index]]">{{item.machineCity}}</span>
+            </div>
+            <div class$="{{_getDisplayClassForDelayFlexRatio(item.delay,'')}}">
+              <span id$="machineid-[[index]]">{{item.machineId}}</span>
+            </div>
+            <div class="">
+              <paper-icon-button icon="[[_icon(item.opened)]]" class="small-icon-button" data-selector$="#collapse-[[index]]" on-tap="_toggleCollapse"></paper-icon-button>
+            </div>
+            <div class="default-icon-class flex" style="[[_getStyleForColor(item.light_color)}}">
+              <iron-icon icon$="{{_getIconNameForShape(item.shape)}}" role="img"></iron-icon>
+              {{_getMessageForLights(item.lights)}}
+            </div>
+            <div class$="{{_getDisplayClassForDelayFlexRatio(item.delay,'')}}">{{item.speed}}</div>
+            <div class$="{{_getDisplayClassForDelayFlexRatio(item.delay,'')}}">{{item.route}}</div>
+            <div class$="{{_getDisplayClassForDelayFlexRatio(item.delay,'')}}">
+              {{_getTripsString(item.today_distance, item.today_onroute_distance, item.today_auto_distance, item.today_num_sequences, item.today_num_auto_sequences)}}
+            </div>
+            <div class$="{{_getDisplayClassForDelayFlexRatio(item.delay,'')}}">
+              <span class$="{{_getDisplayClassForVoltage(item.battery_voltage)}}">{{item.battery_voltage}}V</span>
+              <span style="margin-left:10px">{{_getMessageForDelay(item.delay)}}</span>
+              <span style="margin-left:10px">{{_getCPUStr(item.cputemp, item.cpubat)}}</span>
+            </div>
+          </div>
+          <iron-collapse id$="collapse-[[index]]" opened="{{item.opened}}">
+            <div class="collapsed-container">
+              <div class="container layout horizontal">
+                <div> Fused maps reports:</div>
+                <div class="collapsed-container">
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,0)}}" target="_blank">0</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,1)}}" target="_blank">1</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,2)}}" target="_blank">2</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,3)}}" target="_blank">3</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,4)}}" target="_blank">4</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,5)}}" target="_blank">5</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,6)}}" target="_blank">6</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,7)}}" target="_blank">7</a>,
+                  <a href="{{_getLinkForItem(item.machineLocn,item.machineId,8)}}" target="_blank">8</a>
+                </div>
+                <div> Image:</div>
+                <div class="collapsed-container">
+                  <a href="{{_getLinkForFishEyeImage(item.machineLocn,item.machineId)}}" target="_blank">FE</a>
+                </div>
+                <div>
+                  <paper-button id$="takesnap-[[index]]" data-selector$="[[item.machineId]]" on-tap="_sendTakeSnap" class="light-yellow-button">Snap</paper-button>
+                </div>
+                <div><span style="margin-left:10px">Admin:</span></div>
+                <div>
+                  <paper-button id$="restart-[[index]]" data-selector$="[[item.machineId]]" on-tap="_sendRestart" class="red-button">Restart</paper-button>
+                </div>
+                <div><span style="margin-left:10px; margin-right:5px; ">Replies:</span></div>
+                <div>
+                  <span id$="replies-[[item.machineId]]" style="font-size:10px">[[item.replies_ts]]</span>
+                </div>
+              </div>
+              <div class="container layout horizontal">
+                <div> Encoder report:</div>
+                <div>
+                  <paper-button id$="runreport1-[[index]]" data-selector$="[[item.machineId]]" on-tap="_sendRunReports" class="light-yellow-button">Run Reports</paper-button>
+                </div>
+                <div class="collapsed-container">
+                  <a href="{{_getLinkForReportN(item.machineLocn,item.machineId,1)}}" target="_blank">Report 1</a>
+                </div>
+                <div class="collapsed-container">
+                  <a href="{{_getLinkForReportN(item.machineLocn,item.machineId,2)}}" target="_blank">Report 2</a>
+                </div>
+              </div>
+            </div>
+          </iron-collapse>
         </div>
         </template>
       </div>
 
     </div>
+
   </template>
 
   <script>
@@ -454,12 +591,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
+
           deploymentId: {type: String, notify: true},
           deploymentLocationId: {type: String, notify: true},
           machineControlCollections: {type: Object, value: {}},
-          machinesList: {type: Array, value: [], notify: true},
 
-          machinesGrid: {type: Array, value: []}
+          // machinesList: {type: Array, value: [], notify: true},
+          machinesGrid: {type: Array, value: []},
+          sortingMachinesGrid: {type: Boolean, value: false},
+          gridRenderTimerLoop: Object,
+
+          firestoreDatabase: {type: Object, observer: '_databaseObjectUpdated'},
+          ipAddress: String,
+          userEmailAddress: {type: String,observer: '_userEmailAddressChanged'},
+
+          machineUpdateTimers: {type: Array, value: []}
         }
       }
 
@@ -468,45 +614,428 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         super.ready();
       }
 
-      _onMachinesListChange()
+      _databaseObjectUpdated() {
+        this.subscribeToDatabase();
+      }
+
+      subscribeToDatabase()
       {
-        console.log('Dashboard: _onMachinesListChange ', this.machinesList);
+        if (!this.firestoreDatabase) return;
+        console.log("View1: firestoreDatabase database is available.");
+      }
+
+      _userEmailAddressChanged() {
+        console.log('View1: _userEmailAddressChanged: ', this.userEmailAddress);
+        // this._checkIfUserCanSendCommands();
+      }
+
+      sendDatabaseCommand(machineId, cmd, cmd_details)
+      {
+
+        if (!this.firestoreDatabase) {
+          console.log("View1::sendDatabaseCommand: ERROR: No firestore database. Can not send database command");
+          return;
+        }
+
+        if (!this.ipAddress) {
+          console.log("View1::sendDatabaseCommand: ERROR: No ipAddress. Can not send database command");
+          return;
+        }
+
+        if (!this.userEmailAddress) {
+          console.log("View1::sendDatabaseCommand: ERROR: No userEmailAddress. Can not send database command");
+          return;
+        }
+
+        if (!machineId)
+        {
+          console.log("View1::sendDatabaseCommand: ERROR: No machineId. Can not send database command");
+          return;
+        }
+
+        // Set the db collection names
+
+        var dbCommandsCollection = machineId+"-commands";
+        console.log('View1: Setting dbCommandsCollection: ', dbCommandsCollection);
+        // var dbRepliesCollection = machineId+"-replies";
+        // console.log('Admin: Setting dbRepliesCollection: ', this.dbRepliesCollection);
+        // var dbSupervisorCollection = machineId+"-supervisor";
+        // console.log('Admin: Setting dbSupervisorCollection: ', this.dbSupervisorCollection);
+
+        // Add a new document with a generated id to commands collection
+        var currTs = Date.now();
+        console.log('View1: Sending command. User: ', this.userEmailAddress, ', IP address: ', this.ipAddress, ', ts: ', currTs);
+        this.firestoreDatabase.collection(dbCommandsCollection).add({
+            timestamp: currTs,
+            command: cmd,
+            details: cmd_details,
+            user: this.userEmailAddress,
+            ip: this.ipAddress
+        })
+        .then(function(docRef) {
+            console.log("View1: Command written with ID: ", docRef.id);
+        })
+        .catch(function(error) {
+            console.error("ERROR: View1: Error adding command to database: ", error);
+        });
+
+      } // send database command
+
+      _onMachinesGridChange()
+      {
+        // console.log('Dashboard: _onMachinesListChange ', this.machinesList);
+        console.log('Dashboard: _onMachinesGridChange ', this.machinesGrid);
         // this.shadowRoot.querySelector( '#machinesGrid' ).items = this.machinesList; //tempMachinesList;
+      }
+
+      computeGridSort()
+      {
+        return function(a,b)
+        {
+          // var a_sortidx = Math.round(parseFloat(a.sortidx)*10.0)/10.0;
+          // var b_sortidx = Math.round(parseFloat(b.sortidx)*10.0)/10.0;
+          var a_sortidx = 0; //Math.round(parseFloat(a.sortidx)*10.0)/10.0;
+          var b_sortidx = 0; //Math.round(parseFloat(b.sortidx)*10.0)/10.0;
+          if (a_sortidx < b_sortidx)
+          {
+            return -1;
+          }
+          else if (a_sortidx > b_sortidx)
+          {
+            return 1;
+          }
+          else if ((a_sortidx === b_sortidx) && (a.machineCity < b.machineCity))
+          {
+            return -1;
+          }
+          else if ((a_sortidx === b_sortidx) && (a.machineCity > b.machineCity))
+          {
+            return 1;
+          }
+          else if ((a_sortidx === b_sortidx) && (a.machineCity === b.machineCity) && (a.machineId < b.machineId))
+          {
+            return -1;
+          }
+          else if ((a_sortidx === b_sortidx) && (a.machineCity === b.machineCity) && (a.machineId > b.machineId))
+          {
+            return 1;
+          }
+          else
+          {
+            return 0;
+          }
+        }
+      }
+
+      _getSequence(index)
+      {
+        return index+1;
       }
 
       assignMachinesList(list)
       {
         console.log('Dashboard: assignMachinesList ', list);
-        this.machinesList = list;
+        // this.machinesList = list;
         this.machinesGrid = list;
+
+        // Go through the grid and assign a sortidx
+        var i_machine;
+        for (i_machine=0; i_machine < this.machinesGrid.length; i_machine++)
+        {
+          this.set(['machinesGrid', i_machine, 'sortidx'], 10000.0);
+
+          // this.machineUpdateTimers.push(
+          //   [setInterval(this.runTimer.bind({ id: i_machine}), 2000), i_machine]
+          // );
+
+        }
+
+        // Grid render timer - this runs infinitely
+        this.gridRenderTimerLoop = setInterval(() => {
+          this._renderMachinesGrid();
+        }, 2000);
       }
+
+      // runTimer()
+      // {
+      //   console.log('running for id', this.id);
+      // }
 
       assignMachineData(machine_id, data)
       {
+        if (this.sortingMachinesGrid === true)
+        {
+          console.log('Dashboard: Sorting machines list, so skipping machines data update');
+        }
         // go through machines list, looking for the id of the machine. Assign data if found
         var i_machine;
-        for (i_machine=0; i_machine < this.machinesList.length; i_machine++)
+        for (i_machine=0; i_machine < this.machinesGrid.length; i_machine++)
         {
-          if (this.machinesList[i_machine].machineId == machine_id)
+          if (this.machinesGrid[i_machine].machineId == machine_id)
           {
             // console.log('Dashboard: Found machine at index', i_machine);
 
             // Set display grid values from data
-            this.set(['machinesGrid', i_machine, 'battery_voltage'], data.status.battery_voltage.toFixed(3));
+            this.set(['machinesGrid', i_machine, 'battery_voltage'], data.status.battery_voltage.toFixed(1));
             this.set(['machinesGrid', i_machine, 'lights'], data.status.lights.color+' '+data.status.lights.shape);
             this.set(['machinesGrid', i_machine, 'light_color'], data.status.lights.color);
             this.set(['machinesGrid', i_machine, 'shape'], data.status.lights.shape);
-            this.set(['machinesGrid', i_machine, 'speed'], data.status.speed.toFixed(3));
+            this.set(['machinesGrid', i_machine, 'cputemp'], data.status.env.cputemp);
+            this.set(['machinesGrid', i_machine, 'cpubat'], data.status.env.cpubat);
+            this.set(['machinesGrid', i_machine, 'speed'], this.getSpeedStr(data.status));
+            // this.set(['machinesGrid', i_machine, 'inliers'], this.getInliersStr(data.status));
+            this.set(['machinesGrid', i_machine, 'route'], this.getRouteStr(data));
             this.set(['machinesGrid', i_machine, 'delay'], this.getDelayHrs(data.timestamp));
+            this.set(['machinesGrid', i_machine, 'sortidx'], this.getDelayHrs(data.timestamp));
+            this.set(['machinesGrid', i_machine, 'last_timestamp'], data.timestamp);
+
+            this.set(['machinesGrid', i_machine, 'today_distance'], this.getTodayDistance(data.status));
+            this.set(['machinesGrid', i_machine, 'today_num_sequences'], this.getTodayNumSequences(data.status));
+            this.set(['machinesGrid', i_machine, 'today_onroute_distance'], this.getTodayOnRouteDistance(data.status));
+            this.set(['machinesGrid', i_machine, 'today_auto_distance'], this.getTodayAutoDistance(data.status));
+            this.set(['machinesGrid', i_machine, 'today_num_auto_sequences'], this.getTodayNumAutoSequences(data.status));
 
             // Done for this message
+            // this.$.machines.render();
             break;
           }
         }
 
-        console.log("MyView1:", this.machinesGrid);
-
+        // console.log("machinesGrid: update ts ", data.timestamp, this.machinesGrid);
       } // assign machine data
+
+
+      assignRepliesData(machine_id, data)
+      {
+        if (this.sortingMachinesGrid === true)
+        {
+          console.log('Dashboard: Sorting machines list, so skipping machines data update');
+        }
+        // go through machines list, looking for the id of the machine. Assign data if found
+        var i_machine;
+        for (i_machine=0; i_machine < this.machinesGrid.length; i_machine++)
+        {
+          if (this.machinesGrid[i_machine].machineId == machine_id)
+          {
+            // console.log('Dashboard: Found machine at index', i_machine);
+
+            // Set display grid values from data
+            this.set(['machinesGrid', i_machine, 'replies_ts'], data.timestamp);
+            this._setReplyGot(machine_id);
+            break;
+          }
+        }
+
+        // console.log("machinesGrid: update ts ", data.timestamp, this.machinesGrid);
+      } // assign replies data
+
+
+      _renderMachinesGrid()
+      {
+        // Recalcualte the machines delay data
+        var i_machine;
+        for (i_machine=0; i_machine < this.machinesGrid.length; i_machine++)
+        {
+          // Refresh display grid values indpendent of data
+          var curr_delay = this.machinesGrid[i_machine].delay
+          if (!curr_delay) continue;
+          // if (curr_delay > 0.05)
+          {
+            var last_ts = this.machinesGrid[i_machine].last_timestamp;
+            var delay_hrs = this.getDelayHrs(last_ts);
+            this.set(['machinesGrid', i_machine, 'delay'], delay_hrs);
+            this.set(['machinesGrid', i_machine, 'sortidx'], delay_hrs);
+            // console.log("updated delay for ", this.machinesGrid[i_machine].machineId, " to ", delay_hrs, " hrs");
+          }
+        }
+
+        this.$.machines.render();
+
+        // Can we go through the divs inside the machines element
+        if (this.machinesGrid.length > 0)
+        {
+          // console.log('Going through all the machines');
+          var last_machine_city_el = '#machineid-0';
+          var last_machine_row_el = '#machinerow-0';
+          var last_machine_city = this.shadowRoot.querySelector('#machinecity-1').innerText;
+          // console.log('   City 0:', last_machine_city);
+          for (i_machine=1; i_machine < this.machinesGrid.length; i_machine++)
+          {
+            var i_machine_str = i_machine.toString();
+            // var this_machine_id_el = '#machineid-'+i_machine_str;
+            var this_machine_city_el = '#machinecity-'+i_machine_str;
+            var this_machine_row_el = '#machinerow-'+i_machine_str;
+            var this_machine_city = this.shadowRoot.querySelector(this_machine_city_el).innerText;
+            if (this_machine_city != last_machine_city)
+            {
+              this.shadowRoot.querySelector(this_machine_row_el).classList.add('row-separator');
+            }
+            last_machine_city_el = this_machine_city_el;
+            last_machine_row_el = this_machine_row_el;
+            last_machine_city = this_machine_city;
+          }
+          var ending_row_num = this.machinesGrid.length-1;
+          var ending_row_el = '#machinerow-'+ending_row_num.toString();
+          this.shadowRoot.querySelector(ending_row_el).classList.add('end-row-separator');
+        }
+      }
+
+      getSpeedStr(status)
+      {
+        if (status.hasOwnProperty('tgt_speed'))
+        {
+          return status.speed.toFixed(2)+'  ('+status.tgt_speed.toFixed(2)+')';
+        }
+        return status.speed.toFixed(2);
+      }
+
+      getInliersStr(status)
+      {
+        if (status.hasOwnProperty('inliers'))
+        {
+          return status.inliers;
+        }
+        return '';
+      }
+
+      getMilesString(meters)
+      {
+        if (typeof meters === 'undefined')
+        {
+          return '';
+        }
+        var miles = meters*0.000621371;
+        if (miles < 0.0)
+        {
+          return '';
+        }
+        if (miles < 0.01)
+        {
+          return '0';
+        }
+        if (miles < 0.06)
+        {
+          var yards = miles*1760;
+          return yards.toFixed(0)+'y';
+        }
+        if (miles < 1.0)
+        {
+          return miles.toFixed(2);
+        }
+        else
+        {
+          return miles.toFixed(1);
+        }
+        return '';
+      }
+
+      getNumString(num)
+      {
+        if (typeof num === 'undefined')
+        {
+          return '';
+        }
+        if (num < 0)
+        {
+          return '';
+        }
+        else
+        {
+          return num.toString();
+        }
+        return '';
+      }
+
+      _getTripsString(dist, rte_dist, auto_dist, n_seq, n_auto_seq)
+      {
+        return this.getMilesString(dist)+'/'+this.getMilesString(rte_dist)+'/'+this.getMilesString(auto_dist)+', '+this.getNumString(n_seq)+'/'+this.getNumString(n_auto_seq);
+      }
+
+      getTodayDistance(status)
+      {
+        if (status.hasOwnProperty('today_travel'))
+        {
+          return status.today_travel;
+        }
+        return -1;
+      }
+
+      getTodayOnRouteDistance(status)
+      {
+        if (status.hasOwnProperty('today_route_travel'))
+        {
+          return status.today_route_travel;
+        }
+        return -1;
+      }
+
+      getTodayAutoDistance(status)
+      {
+        if (status.hasOwnProperty('today_auto_travel'))
+        {
+          return status.today_auto_travel;
+        }
+        return -1;
+      }
+
+      getTodayNumSequences(status)
+      {
+        if (status.hasOwnProperty('today_num_sequences'))
+        {
+          return status.today_num_sequences;
+        }
+        return -1;
+      }
+
+      getTodayNumAutoSequences(status)
+      {
+        if (status.hasOwnProperty('today_num_auto_sequences'))
+        {
+          return status.today_num_auto_sequences;
+        }
+        return -1;
+      }
+
+      getRouteStr(data)
+      {
+        var rt = '';
+        if (data.hasOwnProperty('current_trip'))
+        {
+          if (data.current_trip.hasOwnProperty('route_id'))
+            rt = data.current_trip.route_id.replace("route_","");
+        }
+        var map_num = -100;
+        var rf_num = -100;
+        var rt_seg_info = '';
+        if (data.hasOwnProperty('location'))
+        {
+          if (data.location.hasOwnProperty('map_num'))
+            map_num = data.location.map_num;
+          if (data.location.hasOwnProperty('rf_num'))
+            rf_num = data.location.rf_num;
+          if (data.location.hasOwnProperty('rt_seg_info'))
+            rt_seg_info = data.location.rt_seg_info;
+        }
+        var rte_str = '';
+        if (rt == '')
+          rte_str = '';
+        else if (map_num < -10)
+          rte_str = rt + ' '; // shows data not available from machine
+        else if (map_num < 0)
+          rte_str = rt + ' ~ ~'; // shows data available but lost
+        else
+          rte_str = rt + ' ' + map_num.toString() + ' ' + rf_num.toString();
+
+        var rte_inl_str = '';
+        if (data.status.hasOwnProperty('inliers'))
+        {
+          rte_inl_str = rte_str + ' (' + data.status.inliers + ')';
+        }
+        else
+          rte_inl_str = rte_str;
+
+        return rte_inl_str;
+      }
 
       getDelayHrs(tsMs)
       {
@@ -524,9 +1053,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         else if (delayHrs > 0)
         {
-          return 'delay-warning-text flex'
+          return 'delay-warning-text flex';
         }
         return 'flex';
+      }
+
+      _getDisplayClassForDelayFlexRatio(delayHrs, ratio)
+      {
+        if (delayHrs > 10.0)
+        {
+          return 'delay-error-text flex'+ratio;
+        }
+        else if (delayHrs > 0)
+        {
+          return 'delay-warning-text flex'+ratio;
+        }
+        return 'flex'+ratio;
+      }
+
+      _getDisplayClassForVoltage(voltage)
+      {
+        if (voltage < 33.0)
+        {
+          return 'voltage-error-text';
+        }
+        else if (voltage < 36.0)
+        {
+          return 'voltage-warning-text';
+        }
+        return '';
       }
 
       _getIconNameForShape(shape)
@@ -543,12 +1098,208 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         {
           return 'maps:navigation';
         }
-        return 'my-icons:square';
+        else if (shape == 'spokes_with_center')
+        {
+          return 'maps:navigation';
+        }
+        return 'image:assistant-photo';
+      }
+
+      _getMessageForLights(lights)
+      {
+        if (lights == 'magenta spokes_with_center')
+        {
+          return 'Steer check';
+        }
+        if (lights == 'magenta spokes')
+        {
+          return 'Vision check';
+        }
+        if (lights == 'red spokes_with_center')
+        {
+          return 'Blocked LDR';
+        }
+        if (lights == 'red spokes')
+        {
+          return 'Blocked';
+        }
+        if (lights == 'orange spokes_with_center')
+        {
+          return 'Camera check';
+        }
+        else if (lights == 'blue square')
+        {
+          return 'Manual';
+        }
+        else if (lights == 'red circle')
+        {
+          return 'Error';
+        }
+        else if (lights == 'cyan spokes')
+        {
+          return 'Auto slow';
+        }
+        else if (lights == 'lime square')
+        {
+          return 'OnRoute';
+        }
+        else if (lights == 'magenta square')
+        {
+          return 'Charging';
+        }
+        if (lights == 'gold spokes')
+        {
+          return 'Auto';
+        }
+        return lights;
       }
 
       _getStyleForColor(light_color)
       {
         return 'color: '+light_color+';';
+      }
+
+      _getMessageForDelay(delay)
+      {
+        var delay_f = Number.parseFloat(delay)
+        if (delay_f < 0.084)
+        {
+          return 'Live';
+        }
+        else if (delay_f < 1.0)
+        {
+          var min_f = delay_f*60.0;
+          return min_f.toFixed()+'m';
+        }
+        else if (delay_f < 10.0)
+        {
+          return delay_f.toFixed(1)+'h';
+        }
+        var days_f = delay_f/24.0;
+        return days_f.toFixed(0)+'d';
+        // return delay;
+      }
+
+      _getCPUStr(cputemp, cpubat)
+      {
+        if (typeof cputemp === 'undefined')
+        {
+          return '';
+        }
+        if (typeof cpubat === 'undefined')
+        {
+          return cputemp.toFixed()+'C';
+        }
+        if (cpubat < 100)
+        {
+          return cputemp.toFixed()+'C '+cpubat.toFixed()+"%";
+        }
+        return cputemp.toFixed()+'C';
+      }
+
+      _getLinkForItem(locn,id,map_idx)
+      {
+        var link='https://storage.cloud.google.com/anantak-fritolay/deployment-'+locn+'/uploads/'+id+'/Fused_Map_Analysis_00'+map_idx.toString()+'.html';
+        return link;
+      }
+
+      _getLinkForFishEyeImage(locn,id)
+      {
+        // https://storage.cloud.google.com/anantak-fritolay/deployment-dayton-oh/images/ANA-FL-027/View3D.jpg
+        var link='https://storage.cloud.google.com/anantak-fritolay/deployment-'+locn+'/images/'+id+'/View3D.jpg';
+        return link;
+      }
+
+      _getLinkForReportN(locn,id,n)
+      {
+        // https://storage.cloud.google.com/anantak-fritolay/deployment-dayton-oh/images/ANA-FL-027/View3D.jpg
+        var link='https://storage.cloud.google.com/anantak-fritolay/deployment-'+locn+'/uploads/'+id+'/Report_'+n+'.pdf';
+        return link;
+      }
+
+      _toggleCollapse(e)
+      {
+        // Assume e.target is the paper-button or an immediate child
+        const selector = e.target.dataset.selector || e.target.parentElement.dataset.selector;
+        console.log(selector);
+        if (selector)
+        {
+          Polymer.dom(this.root).querySelector(selector).toggle();
+        }
+      }
+
+      _setCommandSent(machineid)
+      {
+        // Replies span
+        const span_id = '#replies-' + machineid;
+        console.log('_setCommandSent: ', span_id);
+        // Find this span
+        Polymer.dom(this.root).querySelector(span_id).className = 'replies-sent';
+      }
+
+      _setReplyGot(machineid)
+      {
+        // Replies span
+        const span_id = '#replies-' + machineid;
+        console.log('_setReplyGot: ', span_id);
+        // Find this span
+        Polymer.dom(this.root).querySelector(span_id).className = 'replies-got';
+      }
+
+      _sendTakeSnap(e)
+      {
+        const machineid = e.target.dataset.selector || e.target.parentElement.dataset.selector;
+        if (machineid)
+        {
+          console.log("Take a snap for machineId: ", machineid);
+          var args = ['/home/ubuntu/Anantak/Admin/upload_camera_images_to_cloud.bash'];
+          var cmd_details = {
+            'usr': 'ubuntu',
+            'dir': '/home/ubuntu/Anantak/Admin',
+            'args': args
+          };
+          this.sendDatabaseCommand(machineid, 'RunCommand', cmd_details)
+          this._setCommandSent(machineid);
+        }
+      }
+
+      _sendRunReports(e)
+      {
+        const machineid = e.target.dataset.selector || e.target.parentElement.dataset.selector;
+        if (machineid)
+        {
+          console.log("Running reports for machineId: ", machineid);
+          var args = ['/home/ubuntu/Anantak/Admin/reporting/run_reports.bash'];
+          var cmd_details = {
+            'usr': 'ubuntu',
+            'dir': '/home/ubuntu/Anantak/Admin',
+            'args': args
+          };
+          this.sendDatabaseCommand(machineid, 'RunCommand', cmd_details)
+          this._setCommandSent(machineid);
+        }
+      }
+
+      _sendRestart(e)
+      {
+        const machineid = e.target.dataset.selector || e.target.parentElement.dataset.selector;
+        if (machineid)
+        {
+          console.log("Restart: ", machineid);
+          var args = ['/home/ubuntu/Anantak/Admin/autowake_in_a_little_time'];
+          var cmd_details = {
+            'usr': 'root',
+            'dir': '/home/ubuntu/Anantak/WebConsole/supervisor',
+            'args': args
+          };
+          this.sendDatabaseCommand(machineid, 'RunCommand', cmd_details);
+          this._setCommandSent(machineid);
+        }
+      }
+
+      _icon(itemOpen)
+      {
+        return itemOpen ? 'expand-less' : 'expand-more';
       }
 
     } // class
